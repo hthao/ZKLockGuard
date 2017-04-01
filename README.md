@@ -1,26 +1,26 @@
-# ZKDLock
+# ZKLockGuard
 An implementation of distributed lock with zookeeper.
 
 ## Instruction
-	class ZKDLock;
+	class ZKLockGuard;
 (constructor) 
 
-	ZKDLock(zhandle_t *zh, const char *zkLockPath, const char *uniqueString);
-When a `ZKDLock` object is created, it attempts to create a zookeeper node with type `ZOO_EPHEMERAL|ZOO_SEQUENCE` under path `zkLockPath`, for example, 
+	ZKLockGuard(zhandle_t *zh, const char *zkLockPath, const char *uniqueString);
+When a `ZKLockGuard` object is created, it attempts to create a zookeeper node with type `ZOO_EPHEMERAL|ZOO_SEQUENCE` under path `zkLockPath`, for example, 
 
 
 > {zkLockPath}/lock_{uniqueString}_{zookeeper_generated_sequence_number}.
 
 if the {zookeeper_generated_sequence_number} is the smallest one, the distributed lock is acquired, otherwise it will wait.
 
-When control leaves the scope in which the `ZKDLock` object was created, the `ZKDLock` is destructed, the zookeeper node is removed, and the distributed lock is released.
+When control leaves the scope in which the `ZKLockGuard` object was created, the `ZKLockGuard` is destructed, the zookeeper node is removed, and the distributed lock is released.
 
 ## Example
 
     #include <stdio.h>
     #include <stdlib.h>
     #include <unistd.h>
-    #include "ZKDLock.h"
+    #include "ZKLockGuard.h"
     
     void defaultWatcher(zhandle_t *zh, int type, int state, const char *path, void *watcherCtx) {
     	//do nothing.
@@ -53,7 +53,7 @@ When control leaves the scope in which the `ZKDLock` object was created, the `ZK
 
 		{
 			//attemp to lock
-			ZKDLock lock(zh, "/dlock/test", "myUniqueString");
+			ZKLockGuard lock(zh, "/dlock/test", "myUniqueString");
 			//got the lock, 
 			//do something
 			sleep(10);
