@@ -1,8 +1,8 @@
 //Author: HaoHongting<haohongting@live.com>
 // -initial create
 
-#ifndef __SANDSEA_ZKLOCK_H
-#define __SANDSEA_ZKLOCK_H
+#ifndef __SANDSEA_ZKLOCKGUARD_H
+#define __SANDSEA_ZKLOCKGUARD_H
 
 #include <string>
 #include <mutex>
