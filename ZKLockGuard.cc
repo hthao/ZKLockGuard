@@ -1,6 +1,6 @@
+#include <stdio.h>
 #include <vector>
-#include <polaris/polaris.h>
-#include "./ZKLock.h"
+#include "./ZKLockGuard.h"
 
 namespace sandsea {
 
@@ -25,7 +25,7 @@ void ZKLock::lockWatcher(zhandle_t *zh, int type, int state, const char *path, v
     if (zklock.get()) {
         zklock->notifyAll();
     } else {
-        LOG_WARN("ZKLock is expired, path:%s\n", path);
+        printf("ZKLock is expired, path:%s\n", path);
     }
 }
 
@@ -43,7 +43,7 @@ bool ZKLock::init(const char *zkHost) {
     } while (!zh_ && count < 3);
 
     if (!zh_) {
-        LOG_ERROR("zookeeper_init failed!!!\n");
+        printf("zookeeper_init failed!!!\n");
         return false;
     } else {
         LOG_INFO("zookeeper_init successfully.\n");
@@ -70,7 +70,7 @@ bool ZKLock::isGotLock(const char *lockPath, std::vector<std::string> *childrens
         size_t ln = path.find_last_of("_");
         std::string seq = path.substr(ln + 1, path.size());
         pathSeq.push_back(seq);
-        LOG_DEBUG("path:%s, seq: %s.\n", path.c_str(), seq.c_str());
+        printf("path:%s, seq: %s.\n", path.c_str(), seq.c_str());
     }
     std::sort(pathSeq.begin(), pathSeq.end());
 
@@ -88,7 +88,7 @@ bool ZKLock::isLockAlreadyCreated(const char *lockPath, const char *uniqueString
     std::vector<std::string> childrens;
     int rc = zoo_get_children(zh_, lockPath, 0, &vec);
     if (rc != ZOK) {
-        LOG_ERROR("zoo_get_children failed with return code:%d, path:%s, uniqueString:%s!!!\n", rc, lockPath, uniqueString);
+        printf("zoo_get_children failed with return code:%d, path:%s, uniqueString:%s!!!\n", rc, lockPath, uniqueString);
         return false;
     }
     copyResult(&vec, &childrens);
@@ -97,7 +97,7 @@ bool ZKLock::isLockAlreadyCreated(const char *lockPath, const char *uniqueString
         size_t fn = path.find_first_of("_");
         size_t ln = path.find_last_of("_");
         std::string unique = path.substr(fn + 1, ln - fn - 1);
-        LOG_DEBUG("path:%s, unique: %s.\n", path.c_str(), unique.c_str());
+        printf("path:%s, unique: %s.\n", path.c_str(), unique.c_str());
         if (unique.compare(uniqueString) == 0) {
             *createdPath = std::string(lockPath) + "/" + path;
             LOG_INFO("already created, path:%s, full path: %s.\n", path.c_str(), createdPath->c_str());
@@ -117,7 +117,7 @@ bool ZKLock::lock(const char *lockPath, const char *uniqueString)
         lockSeq.append("_");
         int rc = zoo_create(zh_, lockSeq.c_str(), NULL, -1, &ZOO_OPEN_ACL_UNSAFE, ZOO_EPHEMERAL|ZOO_SEQUENCE, buf, 256);
         if (rc != ZOK) {
-            LOG_ERROR("zoo_create failed with return code:%d!!!\n", rc);
+            printf("zoo_create failed with return code:%d!!!\n", rc);
             return false;
         }
         myPath_.assign(buf);
@@ -130,15 +130,15 @@ bool ZKLock::lock(const char *lockPath, const char *uniqueString)
         ZKLockWrapper *wrp = new ZKLockWrapper(getPtr());
         int rc = zoo_wget_children(zh_, lockPath, &ZKLock::lockWatcher, wrp, &vec);
         if (rc != ZOK) {
-            LOG_ERROR("zoo_wget_children2 failed with return code:%d!!!\n", rc);
+            printf("zoo_wget_children2 failed with return code:%d!!!\n", rc);
             return false;
         }
         copyResult(&vec, &childrens);
         if (isGotLock(lockPath, &childrens)) {
-            LOG_DEBUG("got the lock.\n");
+            printf("got the lock.\n");
             break;
         } else {
-            LOG_DEBUG("didn't got the lock, wait watcher event.\n");
+            printf("didn't got the lock, wait watcher event.\n");
             cond_.wait(mtxLock);
         }
     }
@@ -149,7 +149,7 @@ void ZKLock::unLock()
 {
     int rc = zoo_delete(zh_, myPath_.c_str(), -1);
     if (rc != ZOK) {
-        LOG_WARN("zoo_delete failed with return code:%d!!!\n", rc);
+        printf("zoo_delete failed with return code:%d!!!\n", rc);
     }
 }
 
