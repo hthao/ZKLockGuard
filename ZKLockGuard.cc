@@ -22,6 +22,7 @@ void ZKLock::lockWatcher(zhandle_t *zh, int type, int state, const char *path, v
     ZKLockWrapper * wrp = static_cast<ZKLockWrapper*>(watcherCtx);
     if (!wrp) return;
     std::shared_ptr<ZKLock> zklock = wrp->getZKLock();
+    delete wrp;
     if (zklock.get()) {
         zklock->notifyAll();
     } else {
