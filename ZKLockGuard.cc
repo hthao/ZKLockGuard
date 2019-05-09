@@ -47,7 +47,7 @@ bool ZKLock::init(const char *zkHost) {
         printf("zookeeper_init failed!!!\n");
         return false;
     } else {
-        LOG_INFO("zookeeper_init successfully.\n");
+        printf("zookeeper_init successfully.\n");
     }
     return true;
 }
@@ -101,7 +101,7 @@ bool ZKLock::isLockAlreadyCreated(const char *lockPath, const char *uniqueString
         printf("path:%s, unique: %s.\n", path.c_str(), unique.c_str());
         if (unique.compare(uniqueString) == 0) {
             *createdPath = std::string(lockPath) + "/" + path;
-            LOG_INFO("already created, path:%s, full path: %s.\n", path.c_str(), createdPath->c_str());
+            printf("already created, path:%s, full path: %s.\n", path.c_str(), createdPath->c_str());
             return true;
         }
     } 
