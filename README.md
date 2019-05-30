@@ -63,7 +63,7 @@ When control leaves the scope in which the `ZKLockGuard` object was created, the
 		return 0;
     }
     
-## Dependecy
+## Dependency
 - -lzookeeper_mt
 - -lpthread
 - c++11
